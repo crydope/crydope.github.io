@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cry DOPE</title>
+<meta name="description" content="Cry DOPE（Syuri × Sonar）公式。New Single「DARK DOPAMINE」2026年10月2日（金）配信開始。">
+<meta name="theme-color" content="#07090d">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Cry DOPE">
+<meta property="og:title" content="Cry DOPE — DARK DOPAMINE">
+<meta property="og:description" content="New Single「DARK DOPAMINE」2026.10.02 FRI 配信開始">
+<meta property="og:image" content="https://crydope.github.io/ogp.jpg">
+<meta property="og:url" content="https://crydope.github.io/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@cryDOPE">
+<link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic:wght@400;700&display=swap">
+<style>
+  :root{
+    --bg:#07090d; --bg2:#0d1016; --ink:#ece8e1; --dim:#9aa1aa; --faint:#5d636c;
+    --line:rgba(236,232,225,.13); --line2:rgba(236,232,225,.26);
+    --red:#c22a3f; --blue:#7c98a6;
+    --font:"BIZ UDGothic","Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink)}
+  body{font-family:var(--font);font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased;
+       min-height:100vh;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  /* 背景：ジャケットをぼかして敷く（PC で左右が寂しくならないように） */
+  .backdrop{position:fixed;inset:-10%;z-index:0;background:url(jacket_640.jpg) center/cover no-repeat;
+            filter:blur(60px) brightness(.35) saturate(.7);transform:scale(1.1)}
+  .backdrop::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(7,9,13,.2),rgba(7,9,13,.92) 70%)}
+  /* フィルムの粒子 */
+  .grain{position:fixed;inset:-10%;z-index:3;pointer-events:none;opacity:.10;mix-blend-mode:overlay;
+         background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+         animation:grain 1.2s steps(6) infinite}
+  @keyframes grain{0%{transform:translate(0,0)}20%{transform:translate(-3%,2%)}40%{transform:translate(2%,-3%)}60%{transform:translate(-2%,-1%)}80%{transform:translate(3%,3%)}100%{transform:translate(0,0)}}
+  @media (prefers-reduced-motion:reduce){.grain{animation:none}}
+
+  .wrap{position:relative;z-index:2;max-width:460px;margin:0 auto;padding-inline:20px;
+        padding-block:calc(env(safe-area-inset-top,0px) + 20px) calc(env(safe-area-inset-bottom,0px) + 28px)}
+  header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-bottom:18px}
+  .word{font-weight:700;font-size:20px;letter-spacing:.04em}
+  .members{font-size:12px;color:var(--dim);letter-spacing:.08em}
+
+  .cover{margin:0;position:relative;aspect-ratio:1/1;max-width:100%;background:var(--bg2);overflow:hidden}
+  .cover img{display:block;width:100%;height:100%;object-fit:cover}
+  .cover::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 80px rgba(0,0,0,.55);pointer-events:none}
+
+  .release{display:grid;gap:6px;padding-top:22px}
+  .eyebrow{display:flex;align-items:center;gap:10px;margin:0;font-size:12px;letter-spacing:.18em;color:var(--dim)}
+  .eyebrow i{width:8px;height:8px;border-radius:50%;background:var(--red);display:inline-block}
+  h1{margin:2px 0 0;font-size:clamp(34px,11vw,46px);line-height:1.08;letter-spacing:.02em;font-weight:700;text-wrap:balance}
+  .date{margin:8px 0 0;font-size:15px;font-weight:700;letter-spacing:.04em}
+  .date span{font-weight:400;color:var(--dim);margin-left:.4em}
+  .count{margin:0;font-size:13px;color:var(--blue);letter-spacing:.06em;font-variant-numeric:tabular-nums;min-height:1.7em}
+
+  .ctas{display:grid;gap:10px;margin-top:18px}
+  .btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:54px;padding:12px 18px;
+       font-family:var(--font);font-size:15px;font-weight:700;letter-spacing:.06em;border:1px solid var(--line2);
+       transition:background .2s,border-color .2s,color .2s}
+  .btn.primary{background:var(--ink);color:#0b0d12;border-color:var(--ink)}
+  .btn.primary:hover{background:#fff}
+  .btn.ghost:hover{border-color:var(--ink)}
+  .btn[aria-disabled="true"]{background:transparent;color:var(--dim);border-style:dashed;border-color:var(--line2);cursor:default}
+  .note{margin:6px 0 0;font-size:12px;color:var(--faint);text-align:center}
+
+  .sec{margin:40px 0 8px;font-size:12px;font-weight:700;letter-spacing:.22em;color:var(--dim)}
+  .links{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+  .links a{display:grid;grid-template-columns:1fr auto 18px;align-items:center;gap:12px;min-height:58px;
+           border-bottom:1px solid var(--line);padding:8px 2px;transition:background .2s}
+  .links a:hover{background:rgba(236,232,225,.04)}
+  .links .n{font-weight:700;letter-spacing:.04em}
+  .links .h{font-size:13px;color:var(--dim);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .links .ar{color:var(--faint);font-size:14px;text-align:right}
+
+  .lyric{margin:44px 0 0;text-align:center;font-size:13px;letter-spacing:.24em;color:var(--faint)}
+  footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;line-height:1.8;color:var(--faint)}
+  footer a{text-decoration:underline;text-underline-offset:2px}
+  a:focus-visible,.btn:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+</style>
+</head>
+<body>
+<div class="backdrop" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="wrap">
+  <header>
+    <span class="word">Cry DOPE</span>
+    <span class="members">Syuri × Sonar</span>
+  </header>
+
+  <main>
+    <figure class="cover">
+      <img src="jacket_1200.jpg" width="1200" height="1200" alt="DARK DOPAMINE ジャケット写真">
+    </figure>
+
+    <section class="release" aria-labelledby="t">
+      <p class="eyebrow"><i></i>NEW SINGLE</p>
+      <h1 id="t">DARK DOPAMINE</h1>
+      <p class="date"><time datetime="2026-10-02T00:00:00+09:00">2026.10.02 FRI</time><span id="dateLabel">配信開始</span></p>
+      <p class="count" id="count" aria-live="polite"></p>
+    </section>
+
+    <div class="ctas">
+      <a class="btn primary" id="ctaListen" data-link="listen" data-pos="cta">配信サービスで聴く</a>
+      <a class="btn ghost" id="ctaMv" data-link="mv" data-pos="cta">MV を観る</a>
+      <p class="note" id="ctaNote"></p>
+    </div>
+
+    <h2 class="sec">FOLLOW</h2>
+    <ul class="links">
+      <li><a data-link="youtube" data-pos="follow" href="https://www.youtube.com/@crydopeofficial"><span class="n">YouTube</span><span class="h">@crydopeofficial</span><span class="ar" aria-hidden="true">↗</span></a></li>
+      <li><a data-link="tiktok" data-pos="follow" href="https://www.tiktok.com/@crydope.official5"><span class="n">TikTok</span><span class="h">@crydope.official5</span><span class="ar" aria-hidden="true">↗</span></a></li>
+      <li><a data-link="instagram" data-pos="follow" href="https://www.instagram.com/crydope.official/"><span class="n">Instagram</span><span class="h">@crydope.official</span><span class="ar" aria-hidden="true">↗</span></a></li>
+      <li><a data-link="x" data-pos="follow" href="https://x.com/cryDOPE"><span class="n">X</span><span class="h">@cryDOPE</span><span class="ar" aria-hidden="true">↗</span></a></li>
+    </ul>
+
+    <p class="lyric">Half of me is still asleep</p>
+  </main>
+
+  <footer>
+    <div>© 2026 s/ash</div>
+    <div id="gaNote">このサイトはアクセス解析のために Google アナリティクスを使用し、Cookie でデータを収集しています（個人を特定する情報は含みません）。<a href="https://policies.google.com/technologies/partner-sites?hl=ja" rel="noopener">Google によるデータの使用</a></div>
+  </footer>
+</div>
+
+<script>
+/* ===== 設定（ここだけ書き換える） ===== */
+var CONFIG = {
+  releaseAt: "2026-10-02T00:00:00+09:00",
+  listenUrl: "",   /* TuneCore の LinkCore URL（審査承認後に入れる） */
+  mvUrl: "",       /* MV の YouTube URL（公開後に入れる） */
+  gaId: "G-Q0E1QGG5ZD"         /* GA4 の測定 ID（G- で始まる） */
+};
+/* ====================================== */
+
+(function(){
+  var rel = new Date(CONFIG.releaseAt).getTime();
+  var now = Date.now();
+  var released = now >= rel;
+
+  // カウントダウン
+  var count = document.getElementById("count");
+  function tick(){
+    var ms = rel - Date.now();
+    if (ms <= 0){ count.textContent = "配信中"; document.getElementById("dateLabel").textContent = "配信開始"; return; }
+    var d = Math.floor(ms/86400000), h = Math.floor(ms%86400000/3600000), m = Math.floor(ms%3600000/60000);
+    count.textContent = "配信まで あと " + (d>0 ? d + "日 " : "") + h + "時間 " + m + "分";
+  }
+  tick(); setInterval(tick, 30000);
+
+  // ボタンの状態
+  var L = document.getElementById("ctaListen"), M = document.getElementById("ctaMv"), note = document.getElementById("ctaNote");
+  if (CONFIG.listenUrl){
+    L.href = CONFIG.listenUrl;
+    L.textContent = released ? "配信サービスで聴く" : "プレセーブする（配信前に予約）";
+  } else {
+    L.setAttribute("aria-disabled","true"); L.removeAttribute("href");
+    L.textContent = "10.02 配信開始";
+    note.textContent = "配信サービスへのリンクは公開と同時にここに出ます";
+  }
+  if (CONFIG.mvUrl){ M.href = CONFIG.mvUrl; M.textContent = "MV を観る"; }
+  else { M.setAttribute("aria-disabled","true"); M.removeAttribute("href"); M.textContent = "MV 近日公開"; }
+
+  // GA4（測定 ID があるときだけ読み込む）
+  if (CONFIG.gaId){
+    var s = document.createElement("script");
+    s.async = true; s.src = "https://www.googletagmanager.com/gtag/js?id=" + CONFIG.gaId;
+    document.head.appendChild(s);
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function(){ dataLayer.push(arguments); };
+    gtag("js", new Date()); gtag("config", CONFIG.gaId);
+  } else {
+    document.getElementById("gaNote").hidden = true;
+  }
+
+  // クリック計測：link_click（link_id＝行き先、link_position＝置き場所）
+  document.addEventListener("click", function(e){
+    var a = e.target.closest("a[data-link]");
+    if (!a || !a.href || !window.gtag) return;
+    gtag("event", "link_click", { link_id: a.dataset.link, link_position: a.dataset.pos, link_url: a.href });
+  });
+})();
+</script>
+</body>
+</html>
