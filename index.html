@@ -18,174 +18,340 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Instrument+Sans:wght@400;500;600&family=Zen+Old+Mincho:wght@400;700&display=swap">
+<script>document.documentElement.classList.add('js')</script>
 <style>
   :root{
-    --bg:#07090d; --bg2:#0d1016; --ink:#ece8e1; --dim:#9aa1aa; --faint:#5d636c;
-    --line:rgba(236,232,225,.13); --line2:rgba(236,232,225,.26);
+    --bg:#07090d; --bg2:#0d1016; --ink:#ece8e1; --dim:#9aa1aa; --faint:#5f656e; --dark:#0b0d12;
+    --line:rgba(236,232,225,.13); --line2:rgba(236,232,225,.3);
     --red:#c22a3f; --blue:#7c98a6;
-    --font:"BIZ UDGothic","Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif;
+    --serif:"Bodoni Moda","Zen Old Mincho","Hiragino Mincho ProN",serif;
+    --sans:"Instrument Sans","Zen Old Mincho","Hiragino Mincho ProN",serif;
+    --jp:"Zen Old Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+    --ease:cubic-bezier(.2,.7,.1,1);
     color-scheme:dark;
   }
   *{box-sizing:border-box}
   html,body{margin:0;background:var(--bg);color:var(--ink)}
-  body{font-family:var(--font);font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased;
-       min-height:100vh;overflow-x:hidden}
+  body{font-family:var(--jp);font-size:15px;line-height:1.75;-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
   a{color:inherit;text-decoration:none}
-  /* 背景：ジャケットをぼかして敷く（PC で左右が寂しくならないように） */
+  button{font:inherit;color:inherit}
+
+  /* ---------- 背景：ぼかしたジャケット＋ゆっくり動く光＋粒子 ---------- */
   .backdrop{position:fixed;inset:-10%;z-index:0;background:url(jacket_640.jpg) center/cover no-repeat;
-            filter:blur(60px) brightness(.35) saturate(.7);transform:scale(1.1)}
-  .backdrop::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(7,9,13,.2),rgba(7,9,13,.92) 70%)}
-  /* フィルムの粒子 */
-  .grain{position:fixed;inset:-10%;z-index:3;pointer-events:none;opacity:.10;mix-blend-mode:overlay;
+            filter:blur(60px) brightness(.3) saturate(.7);transform:scale(1.1)}
+  .leak{position:fixed;inset:-20%;z-index:1;pointer-events:none;mix-blend-mode:screen;opacity:.55;
+        background:radial-gradient(40% 30% at 20% 30%,rgba(194,42,63,.22),transparent 70%),
+                   radial-gradient(35% 28% at 80% 70%,rgba(124,152,166,.20),transparent 70%);
+        animation:leak 22s ease-in-out infinite alternate}
+  @keyframes leak{0%{transform:translate(-4%,-2%) scale(1)}50%{transform:translate(3%,4%) scale(1.08)}100%{transform:translate(-2%,3%) scale(1.02)}}
+  .vign{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 50% 35%,transparent 35%,rgba(7,9,13,.85) 100%)}
+  .grain{position:fixed;inset:-10%;z-index:9;pointer-events:none;opacity:.11;mix-blend-mode:overlay;
          background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
          animation:grain 1.2s steps(6) infinite}
   @keyframes grain{0%{transform:translate(0,0)}20%{transform:translate(-3%,2%)}40%{transform:translate(2%,-3%)}60%{transform:translate(-2%,-1%)}80%{transform:translate(3%,3%)}100%{transform:translate(0,0)}}
-  @media (prefers-reduced-motion:reduce){.grain{animation:none}}
 
-  .wrap{position:relative;z-index:2;max-width:460px;margin:0 auto;padding-inline:20px;
-        padding-block:calc(env(safe-area-inset-top,0px) + 20px) calc(env(safe-area-inset-bottom,0px) + 28px)}
+  .wrap{position:relative;z-index:2;max-width:480px;margin:0 auto;padding-inline:20px;
+        padding-block:calc(env(safe-area-inset-top,0px) + 22px) calc(env(safe-area-inset-bottom,0px) + 28px)}
+
+  /* ---------- 読み込み時の順番表示 ---------- */
+  .js .up{opacity:0;transform:translateY(14px);animation:up .9s var(--ease) forwards;animation-delay:var(--d,0s)}
+  @keyframes up{to{opacity:1;transform:none}}
+  .js .reveal{opacity:0;transform:translateY(22px);transition:opacity 1s var(--ease),transform 1s var(--ease)}
+  .js .reveal.in{opacity:1;transform:none}
+
   header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-bottom:18px}
-  .word{font-weight:700;font-size:20px;letter-spacing:.04em}
-  .members{font-size:12px;color:var(--dim);letter-spacing:.08em}
+  .word{font-family:var(--serif);font-size:25px;font-weight:400;letter-spacing:.01em}
+  .members{font-family:var(--sans);font-size:11px;color:var(--dim);letter-spacing:.24em;text-transform:uppercase}
 
-  .cover{margin:0;position:relative;aspect-ratio:1/1;max-width:100%;background:var(--bg2);overflow:hidden}
-  .cover img{display:block;width:100%;height:100%;object-fit:cover}
-  .cover::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 80px rgba(0,0,0,.55);pointer-events:none}
+  /* ---------- ジャケット（カムコーダー風の表示） ---------- */
+  .cover{margin:0;position:relative;aspect-ratio:1/1;max-width:100%;background:var(--bg2);overflow:hidden;
+         outline:1px solid transparent;transition:outline-color .4s}
+  .cover img{display:block;width:100%;height:100%;object-fit:cover;animation:breathe 14s ease-in-out infinite alternate;transition:filter .5s}
+  @keyframes breathe{from{transform:scale(1)}to{transform:scale(1.07)}}
+  .cover::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 90px rgba(0,0,0,.6);pointer-events:none}
+  .cover:hover{outline-color:var(--line2)}
+  .cover:hover img{filter:brightness(1.12) contrast(1.05)}
+  .osd{position:absolute;z-index:2;left:14px;right:14px;top:12px;display:flex;justify-content:space-between;
+       font-family:var(--sans);font-size:11px;letter-spacing:.18em;color:rgba(236,232,225,.85);text-shadow:0 1px 2px rgba(0,0,0,.6)}
+  .osd .rec{display:flex;align-items:center;gap:7px}
+  .osd .rec i{width:8px;height:8px;border-radius:50%;background:var(--red);animation:blink 1.1s steps(1) infinite}
+  @keyframes blink{50%{opacity:.15}}
+  .osd .tc{font-variant-numeric:tabular-nums}
+  .osd.bottom{top:auto;bottom:12px}
 
-  .release{display:grid;gap:6px;padding-top:22px}
-  .eyebrow{display:flex;align-items:center;gap:10px;margin:0;font-size:12px;letter-spacing:.18em;color:var(--dim)}
-  .eyebrow i{width:8px;height:8px;border-radius:50%;background:var(--red);display:inline-block}
-  h1{margin:2px 0 0;font-size:clamp(34px,11vw,46px);line-height:1.08;letter-spacing:.02em;font-weight:700;text-wrap:balance}
-  .date{margin:8px 0 0;font-size:15px;font-weight:700;letter-spacing:.04em}
-  .date span{font-weight:400;color:var(--dim);margin-left:.4em}
-  .count{margin:0;font-size:13px;color:var(--blue);letter-spacing:.06em;font-variant-numeric:tabular-nums;min-height:1.7em}
+  /* ---------- 流れる帯 ---------- */
+  .marquee{margin:18px -20px 0;border-block:1px solid var(--line);overflow:hidden;white-space:nowrap}
+  .marquee .track{display:inline-flex;gap:0;animation:marq 26s linear infinite}
+  .marquee span{font-family:var(--serif);font-style:italic;font-size:19px;padding:9px 0;color:var(--dim)}
+  .marquee span b{font-style:normal;font-weight:400;color:var(--red);margin:0 18px}
+  @keyframes marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
+  /* ---------- 曲の情報 ---------- */
+  .release{display:grid;gap:4px;padding-top:24px}
+  .eyebrow{display:flex;align-items:center;gap:10px;margin:0;font-family:var(--sans);font-size:11px;letter-spacing:.34em;color:var(--dim);text-transform:uppercase}
+  .eyebrow i{width:7px;height:7px;border-radius:50%;background:var(--red);display:inline-block;animation:blink 1.1s steps(1) infinite}
+  h1{margin:6px 0 0;font-family:var(--serif);font-weight:400;font-size:clamp(40px,12.4vw,56px);line-height:1.02;letter-spacing:.005em;text-transform:uppercase}
+  h1 .wd{display:inline-block;white-space:nowrap}
+  h1 .ch{display:inline-block}
+  .js h1 .ch{opacity:0;transform:translateY(.35em);filter:blur(6px);animation:ch .8s var(--ease) forwards}
+  @keyframes ch{to{opacity:1;transform:none;filter:none}}
+  .date{margin:12px 0 0;font-family:var(--sans);font-size:15px;font-weight:500;letter-spacing:.08em}
+  .date span{font-family:var(--jp);font-weight:400;color:var(--dim);margin-left:.6em;letter-spacing:.04em}
+  .count{margin:2px 0 0;font-family:var(--sans);font-size:13px;color:var(--blue);letter-spacing:.1em;font-variant-numeric:tabular-nums;min-height:1.75em}
+  .count em{font-style:normal;font-family:var(--jp);letter-spacing:.04em}
+
+  /* ---------- ボタン：マウスを乗せると左から塗りつぶし ---------- */
   .ctas{display:grid;gap:10px;margin-top:18px}
-  .btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:54px;padding:12px 18px;
-       font-family:var(--font);font-size:15px;font-weight:700;letter-spacing:.06em;border:1px solid var(--line2);
-       transition:background .2s,border-color .2s,color .2s}
-  .btn.primary{background:var(--ink);color:#0b0d12;border-color:var(--ink)}
-  .btn.primary:hover{background:#fff}
-  .btn.ghost:hover{border-color:var(--ink)}
-  .btn[aria-disabled="true"]{background:transparent;color:var(--dim);border-style:dashed;border-color:var(--line2);cursor:default}
+  .btn{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:56px;padding:12px 20px;
+       font-family:var(--sans);font-size:15px;font-weight:500;letter-spacing:.08em;border:1px solid var(--line2);cursor:pointer;isolation:isolate;
+       transition:color .35s var(--ease),border-color .35s}
+  .btn::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform .45s var(--ease)}
+  .btn .arw{display:inline-block;transition:transform .35s var(--ease)}
+  .btn.primary{background:var(--ink);color:var(--dark);border-color:var(--ink)}
+  .btn.primary::before{background:var(--red)}
+  .btn.primary:hover,.btn.primary:focus-visible{color:#fff;border-color:var(--red)}
+  .btn:not(.primary):hover,.btn:not(.primary):focus-visible{color:var(--dark);border-color:var(--ink)}
+  .btn:hover::before,.btn:focus-visible::before,.btn:active::before{transform:scaleX(1)}
+  .btn:hover .arw,.btn:focus-visible .arw{transform:translateX(6px)}
+  .btn[aria-disabled="true"]{background:transparent;color:var(--dim);border-style:dashed;cursor:default;justify-content:center}
+  .btn[aria-disabled="true"]::before{display:none}
+  .btn[aria-disabled="true"] .arw{display:none}
+  .btn[aria-disabled="true"]::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(236,232,225,.07) 50%,transparent 70%);
+       transform:translateX(-100%);animation:shimmer 3.2s ease-in-out infinite}
+  @keyframes shimmer{60%,100%{transform:translateX(100%)}}
   .note{margin:6px 0 0;font-size:12px;color:var(--faint);text-align:center}
 
-  .sec{margin:40px 0 8px;font-size:12px;font-weight:700;letter-spacing:.22em;color:var(--dim)}
-  .links{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
-  .links a{display:grid;grid-template-columns:1fr auto 18px;align-items:center;gap:12px;min-height:58px;
-           border-bottom:1px solid var(--line);padding:8px 2px;transition:background .2s}
-  .links a:hover{background:rgba(236,232,225,.04)}
-  .links .n{font-weight:700;letter-spacing:.04em}
-  .links .h{font-size:13px;color:var(--dim);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .links .ar{color:var(--faint);font-size:14px;text-align:right}
+  .sec{display:flex;align-items:baseline;justify-content:space-between;margin:48px 0 12px;font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:.34em;color:var(--dim);text-transform:uppercase}
+  .sec small{font-size:10px;letter-spacing:.2em;color:var(--faint)}
 
-  .lyric{margin:44px 0 0;text-align:center;font-size:13px;letter-spacing:.24em;color:var(--faint)}
-  footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;line-height:1.8;color:var(--faint)}
-  footer a{text-decoration:underline;text-underline-offset:2px}
-  a:focus-visible,.btn:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+  /* ---------- ティザー動画 ---------- */
+  .teaser{position:relative;margin:0 auto;width:min(100%,300px);aspect-ratio:9/16;max-width:100%;border:1px solid var(--line2);border-radius:18px;overflow:hidden;background:var(--bg2);
+          transition:transform .5s var(--ease),border-color .4s,box-shadow .5s}
+  .teaser video{display:block;width:100%;height:100%;object-fit:cover}
+  .teaser:hover{transform:translateY(-4px);border-color:var(--ink);box-shadow:0 18px 50px rgba(0,0,0,.55)}
+  .snd{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;
+       background:rgba(7,9,13,.66);border:1px solid var(--line2);font-family:var(--sans);font-size:12px;letter-spacing:.12em;cursor:pointer;backdrop-filter:blur(6px);
+       transition:background .3s,color .3s,border-color .3s}
+  .snd:hover,.snd:focus-visible{background:var(--ink);color:var(--dark);border-color:var(--ink)}
+  .snd .bars{display:inline-flex;gap:2px;align-items:flex-end;height:11px}
+  .snd .bars i{width:2px;background:currentColor;height:30%}
+  .snd.on .bars i{animation:eq .7s ease-in-out infinite alternate}
+  .snd.on .bars i:nth-child(2){animation-delay:.15s}.snd.on .bars i:nth-child(3){animation-delay:.3s}
+  @keyframes eq{from{height:20%}to{height:100%}}
+  .cap{margin:10px 0 0;text-align:center;font-family:var(--serif);font-style:italic;font-size:15px;color:var(--dim)}
+
+  /* ---------- SNS：行ごと反転＋矢印が動く ---------- */
+  .links{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+  .links a{position:relative;display:grid;grid-template-columns:28px 1fr auto 22px;align-items:center;gap:12px;min-height:64px;padding:8px 10px;
+           border-bottom:1px solid var(--line);isolation:isolate;transition:color .35s var(--ease),padding .35s var(--ease)}
+  .links a::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform .45s var(--ease)}
+  .links .i{font-family:var(--sans);font-size:11px;color:var(--faint);letter-spacing:.1em;font-variant-numeric:tabular-nums;transition:color .35s}
+  .links .n{font-family:var(--serif);font-size:22px;font-weight:400}
+  .links .h{font-family:var(--sans);font-size:13px;color:var(--dim);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:color .35s}
+  .links .ar{font-family:var(--sans);font-size:16px;text-align:right;color:var(--faint);transition:transform .35s var(--ease),color .35s}
+  .links a:hover,.links a:focus-visible,.links a:active{color:var(--dark);padding-left:16px}
+  .links a:hover::before,.links a:focus-visible::before,.links a:active::before{transform:scaleX(1)}
+  .links a:hover .h,.links a:hover .i,.links a:focus-visible .h,.links a:focus-visible .i{color:#3a3f46}
+  .links a:hover .ar,.links a:focus-visible .ar{color:var(--red);transform:translate(3px,-3px)}
+
+  /* ---------- フィルム写真：自動で流れる／乗せると止まって拡大 ---------- */
+  .film{margin-inline:-20px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+  .film .track{display:flex;gap:10px;width:max-content;animation:marq 48s linear infinite;padding-block:8px}
+  .film:hover .track{animation-play-state:paused}
+  .film figure{margin:0;flex:0 0 auto;width:188px;aspect-ratio:3/4;max-width:100%;position:relative;overflow:hidden;background:var(--bg2);
+               transition:transform .5s var(--ease),box-shadow .5s}
+  .film img{display:block;width:100%;height:100%;object-fit:cover;filter:grayscale(.35) contrast(1.02) brightness(.85);transition:filter .5s,transform .8s var(--ease)}
+  .film figure::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 40px rgba(0,0,0,.45);pointer-events:none}
+  .film figcaption{position:absolute;left:10px;bottom:8px;z-index:1;font-family:var(--sans);font-size:10px;letter-spacing:.22em;color:rgba(236,232,225,.75)}
+  .film figure:hover{transform:translateY(-6px);box-shadow:0 14px 34px rgba(0,0,0,.6)}
+  .film figure:hover img{filter:none;transform:scale(1.06)}
+
+  .lyric{margin:50px 0 0;text-align:center;font-family:var(--serif);font-style:italic;font-size:18px;letter-spacing:.02em;color:var(--dim)}
+  .lyric .w{display:inline-block;opacity:.18;filter:blur(3px);transition:opacity .7s,filter .7s}
+  .lyric.in .w{opacity:1;filter:none}
+  footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;line-height:1.85;color:var(--faint)}
+  footer .c{font-family:var(--sans);letter-spacing:.08em}
+  footer a{text-decoration:underline;text-underline-offset:2px;transition:color .3s}
+  footer a:hover{color:var(--ink)}
+  a:focus-visible,.btn:focus-visible,.snd:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none!important;transition:none!important}
+    .js .up,.js .reveal,.js h1 .ch,.lyric .w{opacity:1!important;transform:none!important;filter:none!important}
+  }
 </style>
 </head>
 <body>
 <div class="backdrop" aria-hidden="true"></div>
+<div class="leak" aria-hidden="true"></div>
+<div class="vign" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 
 <div class="wrap">
-  <header>
+  <header class="up" style="--d:.05s">
     <span class="word">Cry DOPE</span>
     <span class="members">Syuri × Sonar</span>
   </header>
 
   <main>
-    <figure class="cover">
+    <figure class="cover up" style="--d:.15s">
       <img src="jacket_1200.jpg" width="1200" height="1200" alt="DARK DOPAMINE ジャケット写真">
+      <div class="osd" aria-hidden="true"><span class="rec"><i></i>REC</span><span class="tc" id="tc">00:00:00:00</span></div>
+      <div class="osd bottom" aria-hidden="true"><span>TOKYO</span><span>HALF ▸ ASLEEP</span></div>
     </figure>
 
+    <div class="marquee up" style="--d:.3s" aria-hidden="true"><div class="track" id="mq"></div></div>
+
     <section class="release" aria-labelledby="t">
-      <p class="eyebrow"><i></i>NEW SINGLE</p>
-      <h1 id="t">DARK DOPAMINE</h1>
-      <p class="date"><time datetime="2026-10-02T00:00:00+09:00">2026.10.02 FRI</time><span id="dateLabel">配信開始</span></p>
-      <p class="count" id="count" aria-live="polite"></p>
+      <p class="eyebrow up" style="--d:.35s"><i></i>New Single</p>
+      <h1 id="t">Dark Dopamine</h1>
+      <p class="date up" style="--d:.9s"><time datetime="2026-10-02T00:00:00+09:00">2026.10.02 FRI</time><span>配信開始</span></p>
+      <p class="count up" style="--d:1s" id="count" aria-live="off"></p>
     </section>
 
-    <div class="ctas">
-      <a class="btn primary" id="ctaListen" data-link="listen" data-pos="cta">配信サービスで聴く</a>
-      <a class="btn ghost" id="ctaMv" data-link="mv" data-pos="cta">MV を観る</a>
+    <div class="ctas up" style="--d:1.1s">
+      <a class="btn primary" id="ctaListen" data-link="listen" data-pos="cta"><span class="lbl">配信サービスで聴く</span><span class="arw" aria-hidden="true">→</span></a>
+      <a class="btn" id="ctaMv" data-link="mv" data-pos="cta"><span class="lbl">MV を観る</span><span class="arw" aria-hidden="true">→</span></a>
       <p class="note" id="ctaNote"></p>
     </div>
 
-    <h2 class="sec">FOLLOW</h2>
-    <ul class="links">
-      <li><a data-link="youtube" data-pos="follow" href="https://www.youtube.com/@crydopeofficial"><span class="n">YouTube</span><span class="h">@crydopeofficial</span><span class="ar" aria-hidden="true">↗</span></a></li>
-      <li><a data-link="tiktok" data-pos="follow" href="https://www.tiktok.com/@crydope.official5"><span class="n">TikTok</span><span class="h">@crydope.official5</span><span class="ar" aria-hidden="true">↗</span></a></li>
-      <li><a data-link="instagram" data-pos="follow" href="https://www.instagram.com/crydope.official/"><span class="n">Instagram</span><span class="h">@crydope.official</span><span class="ar" aria-hidden="true">↗</span></a></li>
-      <li><a data-link="x" data-pos="follow" href="https://x.com/cryDOPE"><span class="n">X</span><span class="h">@cryDOPE</span><span class="ar" aria-hidden="true">↗</span></a></li>
+    <h2 class="sec reveal">Teaser <small>5 sec</small></h2>
+    <div class="reveal">
+      <div class="teaser">
+        <video id="tv" src="teaser.mp4" poster="teaser_poster.jpg" autoplay muted loop playsinline preload="auto"></video>
+        <button class="snd" id="snd" type="button" aria-pressed="false"><span class="bars" aria-hidden="true"><i></i><i></i><i></i></span><span id="sndl">音を出す</span></button>
+      </div>
+      <p class="cap">han-bun, han-bun, han-bun-bun</p>
+    </div>
+
+    <h2 class="sec reveal">Follow <small>04</small></h2>
+    <ul class="links reveal">
+      <li><a data-link="youtube" data-pos="follow" href="https://www.youtube.com/@crydopeofficial"><span class="i">01</span><span class="n">YouTube</span><span class="h">@crydopeofficial</span><span class="ar" aria-hidden="true">↗</span></a></li>
+      <li><a data-link="tiktok" data-pos="follow" href="https://www.tiktok.com/@crydope.official5"><span class="i">02</span><span class="n">TikTok</span><span class="h">@crydope.official5</span><span class="ar" aria-hidden="true">↗</span></a></li>
+      <li><a data-link="instagram" data-pos="follow" href="https://www.instagram.com/crydope.official/"><span class="i">03</span><span class="n">Instagram</span><span class="h">@crydope.official</span><span class="ar" aria-hidden="true">↗</span></a></li>
+      <li><a data-link="x" data-pos="follow" href="https://x.com/cryDOPE"><span class="i">04</span><span class="n">X</span><span class="h">@cryDOPE</span><span class="ar" aria-hidden="true">↗</span></a></li>
     </ul>
 
-    <p class="lyric">Half of me is still asleep</p>
+    <h2 class="sec reveal">Film <small>06</small></h2>
+    <div class="film reveal" aria-label="写真">
+      <div class="track" id="film">
+        <figure><img src="film_01.jpg" width="600" height="800" alt="笑い合う二人"><figcaption>01</figcaption></figure>
+        <figure><img src="film_02.jpg" width="600" height="800" alt="夜道を歩く二人"><figcaption>02</figcaption></figure>
+        <figure><img src="film_03.jpg" width="600" height="800" alt="耳打ちする二人"><figcaption>03</figcaption></figure>
+        <figure><img src="film_04.jpg" width="600" height="800" alt="床に寝転ぶ二人"><figcaption>04</figcaption></figure>
+        <figure><img src="film_05.jpg" width="600" height="800" alt="イヤホンを分け合う二人"><figcaption>05</figcaption></figure>
+        <figure><img src="film_06.jpg" width="600" height="800" alt="猫と二人"><figcaption>06</figcaption></figure>
+      </div>
+    </div>
+
+    <p class="lyric" id="lyric">Half of me is still asleep</p>
   </main>
 
   <footer>
-    <div>© 2026 s/ash</div>
+    <div class="c">© 2026 s/ash</div>
     <div id="gaNote">このサイトはアクセス解析のために Google アナリティクスを使用し、Cookie でデータを収集しています（個人を特定する情報は含みません）。<a href="https://policies.google.com/technologies/partner-sites?hl=ja" rel="noopener">Google によるデータの使用</a></div>
   </footer>
 </div>
 
 <script>
-/* ===== 設定（ここだけ書き換える） ===== */
+/* ===== 設定（更新するのはここだけ） ===== */
 var CONFIG = {
   releaseAt: "2026-10-02T00:00:00+09:00",
   listenUrl: "",   /* TuneCore の LinkCore URL（審査承認後に入れる） */
   mvUrl: "",       /* MV の YouTube URL（公開後に入れる） */
-  gaId: "G-Q0E1QGG5ZD"         /* GA4 の測定 ID（G- で始まる） */
+  gaId: "G-Q0E1QGG5ZD"
 };
-/* ====================================== */
+/* ======================================== */
 
 (function(){
-  var rel = new Date(CONFIG.releaseAt).getTime();
-  var now = Date.now();
-  var released = now >= rel;
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // カウントダウン
-  var count = document.getElementById("count");
+  // タイトルを1文字ずつ出す
+  var h = document.getElementById('t'), words = h.textContent.split(' '); h.textContent = '';
+  words.forEach(function(word, wi){
+    var w = document.createElement('span'); w.className = 'wd ch'; w.textContent = word;
+    w.style.animationDelay = (0.45 + wi * 0.22) + 's'; h.appendChild(w);
+    if (wi < words.length - 1) h.appendChild(document.createTextNode(' '));
+  });
+    h.appendChild(w); if (wi < words.length - 1) h.appendChild(document.createTextNode(' '));
+  });
+
+  // 流れる帯（2周分並べて継ぎ目なく流す）
+  var unit = 'Dark Dopamine<b>✦</b>2026.10.02 Fri<b>✦</b>Half of me is still asleep<b>✦</b>半分のあたし<b>✦</b>';
+  var mq = document.getElementById('mq'); var html = '';
+  for (var k = 0; k < 4; k++) html += '<span>' + unit + '</span>';
+  mq.innerHTML = html;
+
+  // フィルム写真も2周分
+  var film = document.getElementById('film'); film.innerHTML += film.innerHTML;
+
+  // カムコーダー風タイムコード
+  var tc = document.getElementById('tc'), t0 = performance.now();
+  function pad(n){ return (n < 10 ? '0' : '') + n; }
+  function tcTick(){
+    var s = (performance.now() - t0) / 1000;
+    tc.textContent = pad(Math.floor(s/3600)) + ':' + pad(Math.floor(s/60)%60) + ':' + pad(Math.floor(s)%60) + ':' + pad(Math.floor(s*24)%24);
+    if (!reduce) requestAnimationFrame(tcTick);
+  }
+  tcTick();
+
+  // カウントダウン（秒まで）
+  var rel = new Date(CONFIG.releaseAt).getTime(), count = document.getElementById('count');
   function tick(){
     var ms = rel - Date.now();
-    if (ms <= 0){ count.textContent = "配信中"; document.getElementById("dateLabel").textContent = "配信開始"; return; }
-    var d = Math.floor(ms/86400000), h = Math.floor(ms%86400000/3600000), m = Math.floor(ms%3600000/60000);
-    count.textContent = "配信まで あと " + (d>0 ? d + "日 " : "") + h + "時間 " + m + "分";
+    if (ms <= 0){ count.innerHTML = '<em>配信中</em>'; return; }
+    var d = Math.floor(ms/86400000), hh = Math.floor(ms%86400000/3600000), mm = Math.floor(ms%3600000/60000), ss = Math.floor(ms%60000/1000);
+    count.innerHTML = '<em>配信まで</em> ' + d + 'd ' + pad(hh) + ':' + pad(mm) + ':' + pad(ss);
   }
-  tick(); setInterval(tick, 30000);
+  tick(); setInterval(tick, 1000);
 
   // ボタンの状態
-  var L = document.getElementById("ctaListen"), M = document.getElementById("ctaMv"), note = document.getElementById("ctaNote");
+  var released = Date.now() >= rel;
+  var L = document.getElementById('ctaListen'), M = document.getElementById('ctaMv'), note = document.getElementById('ctaNote');
   if (CONFIG.listenUrl){
     L.href = CONFIG.listenUrl;
-    L.textContent = released ? "配信サービスで聴く" : "プレセーブする（配信前に予約）";
+    L.querySelector('.lbl').textContent = released ? '配信サービスで聴く' : 'プレセーブする（配信前に予約）';
   } else {
-    L.setAttribute("aria-disabled","true"); L.removeAttribute("href");
-    L.textContent = "10.02 配信開始";
-    note.textContent = "配信サービスへのリンクは公開と同時にここに出ます";
+    L.setAttribute('aria-disabled','true'); L.removeAttribute('href');
+    L.querySelector('.lbl').textContent = '10.02 配信開始';
+    note.textContent = '配信サービスへのリンクは公開と同時にここに出ます';
   }
-  if (CONFIG.mvUrl){ M.href = CONFIG.mvUrl; M.textContent = "MV を観る"; }
-  else { M.setAttribute("aria-disabled","true"); M.removeAttribute("href"); M.textContent = "MV 近日公開"; }
+  if (CONFIG.mvUrl){ M.href = CONFIG.mvUrl; }
+  else { M.setAttribute('aria-disabled','true'); M.removeAttribute('href'); M.querySelector('.lbl').textContent = 'MV 近日公開'; }
 
-  // GA4（測定 ID があるときだけ読み込む）
+  // ティザーの音（押したときだけ鳴らす）
+  var v = document.getElementById('tv'), snd = document.getElementById('snd'), sndl = document.getElementById('sndl');
+  snd.addEventListener('click', function(){
+    v.muted = !v.muted; if (!v.muted){ v.currentTime = 0; v.play(); }
+    snd.classList.toggle('on', !v.muted); snd.setAttribute('aria-pressed', String(!v.muted));
+    sndl.textContent = v.muted ? '音を出す' : '音を消す';
+    if (window.gtag && !v.muted) gtag('event', 'teaser_unmute');
+  });
+
+  // 歌詞を単語ごとに
+  var ly = document.getElementById('lyric'), words = ly.textContent.split(' '); ly.textContent = '';
+  words.forEach(function(w, i){ var s = document.createElement('span'); s.className = 'w'; s.textContent = w; s.style.transitionDelay = (i*0.12) + 's'; ly.appendChild(s); if (i < words.length-1) ly.appendChild(document.createTextNode(' ')); });
+
+  // スクロールで出す
+  var els = document.querySelectorAll('.reveal, #lyric');
+  if ('IntersectionObserver' in window && !reduce){
+    var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); }, {threshold: .15});
+    els.forEach(function(el){ io.observe(el); });
+  } else { els.forEach(function(el){ el.classList.add('in'); }); }
+
+  // GA4
   if (CONFIG.gaId){
-    var s = document.createElement("script");
-    s.async = true; s.src = "https://www.googletagmanager.com/gtag/js?id=" + CONFIG.gaId;
+    var s = document.createElement('script'); s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=' + CONFIG.gaId;
     document.head.appendChild(s);
-    window.dataLayer = window.dataLayer || [];
-    window.gtag = function(){ dataLayer.push(arguments); };
-    gtag("js", new Date()); gtag("config", CONFIG.gaId);
-  } else {
-    document.getElementById("gaNote").hidden = true;
-  }
+    window.dataLayer = window.dataLayer || []; window.gtag = function(){ dataLayer.push(arguments); };
+    gtag('js', new Date()); gtag('config', CONFIG.gaId);
+  } else { document.getElementById('gaNote').hidden = true; }
 
-  // クリック計測：link_click（link_id＝行き先、link_position＝置き場所）
-  document.addEventListener("click", function(e){
-    var a = e.target.closest("a[data-link]");
+  document.addEventListener('click', function(e){
+    var a = e.target.closest('a[data-link]');
     if (!a || !a.href || !window.gtag) return;
-    gtag("event", "link_click", { link_id: a.dataset.link, link_position: a.dataset.pos, link_url: a.href });
+    gtag('event', 'link_click', { link_id: a.dataset.link, link_position: a.dataset.pos, link_url: a.href });
   });
 })();
 </script>
