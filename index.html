@@ -32,27 +32,30 @@
     color-scheme:dark;
   }
   *{box-sizing:border-box}
+  [hidden]{display:none!important}
   html,body{margin:0;background:var(--bg);color:var(--ink)}
-  body{font-family:var(--jp);font-size:15px;line-height:1.75;-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
+  body{font-family:var(--jp);font-size:15px;line-height:1.75;-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden;
+       touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+  body.lbopen{overflow:hidden}
   a{color:inherit;text-decoration:none}
   button{font:inherit;color:inherit}
 
   /* ---------- 背景：ぼかしたジャケット＋ゆっくり動く光＋粒子 ---------- */
   .backdrop{position:fixed;inset:-10%;z-index:0;background:url(jacket_640.jpg) center/cover no-repeat;
-            filter:blur(60px) brightness(.3) saturate(.7);transform:scale(1.1)}
+            filter:blur(60px) brightness(.3) saturate(.7);transform:scale(1.1);transition:filter .6s}
   .leak{position:fixed;inset:-20%;z-index:1;pointer-events:none;mix-blend-mode:screen;opacity:.55;
         background:radial-gradient(40% 30% at 20% 30%,rgba(194,42,63,.22),transparent 70%),
                    radial-gradient(35% 28% at 80% 70%,rgba(124,152,166,.20),transparent 70%);
         animation:leak 22s ease-in-out infinite alternate}
   @keyframes leak{0%{transform:translate(-4%,-2%) scale(1)}50%{transform:translate(3%,4%) scale(1.08)}100%{transform:translate(-2%,3%) scale(1.02)}}
   .vign{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 50% 35%,transparent 35%,rgba(7,9,13,.85) 100%)}
-  .grain{position:fixed;inset:-10%;z-index:9;pointer-events:none;opacity:.11;mix-blend-mode:overlay;
+  .grain{position:fixed;inset:-10%;z-index:9;pointer-events:none;opacity:.11;mix-blend-mode:overlay;transition:opacity .4s;
          background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
          animation:grain 1.2s steps(6) infinite}
   @keyframes grain{0%{transform:translate(0,0)}20%{transform:translate(-3%,2%)}40%{transform:translate(2%,-3%)}60%{transform:translate(-2%,-1%)}80%{transform:translate(3%,3%)}100%{transform:translate(0,0)}}
 
   .wrap{position:relative;z-index:2;max-width:480px;margin:0 auto;padding-inline:20px;
-        padding-block:calc(env(safe-area-inset-top,0px) + 22px) calc(env(safe-area-inset-bottom,0px) + 28px)}
+        padding-block:calc(env(safe-area-inset-top,0px) + 18px) calc(env(safe-area-inset-bottom,0px) + 28px)}
 
   /* ---------- 読み込み時の順番表示 ---------- */
   .js .up{opacity:0;transform:translateY(14px);animation:up .9s var(--ease) forwards;animation-delay:var(--d,0s)}
@@ -60,49 +63,62 @@
   .js .reveal{opacity:0;transform:translateY(22px);transition:opacity 1s var(--ease),transform 1s var(--ease)}
   .js .reveal.in{opacity:1;transform:none}
 
-  header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-bottom:18px}
+  header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-bottom:14px}
   .word{font-family:var(--serif);font-size:25px;font-weight:400;letter-spacing:.01em}
   .members{font-family:var(--sans);font-size:11px;color:var(--dim);letter-spacing:.24em;text-transform:uppercase}
 
-  /* ---------- ジャケット（カムコーダー風の表示） ---------- */
-  .cover{margin:0;position:relative;aspect-ratio:1/1;max-width:100%;background:var(--bg2);overflow:hidden;
-         outline:1px solid transparent;transition:outline-color .4s}
-  .cover img{display:block;width:100%;height:100%;object-fit:cover;animation:breathe 14s ease-in-out infinite alternate;transition:filter .5s}
-  @keyframes breathe{from{transform:scale(1)}to{transform:scale(1.07)}}
-  .cover::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 90px rgba(0,0,0,.6);pointer-events:none}
-  .cover:hover{outline-color:var(--line2)}
-  .cover:hover img{filter:brightness(1.12) contrast(1.05)}
-  .osd{position:absolute;z-index:2;left:14px;right:14px;top:12px;display:flex;justify-content:space-between;
-       font-family:var(--sans);font-size:11px;letter-spacing:.18em;color:rgba(236,232,225,.85);text-shadow:0 1px 2px rgba(0,0,0,.6)}
+  /* ---------- 一番上：ティザー映像（タップで音） ---------- */
+  .hero{margin:0}
+  .stage{--beat:0;position:relative;aspect-ratio:4/5;max-width:100%;overflow:hidden;background:var(--bg2) url(teaser_poster.jpg) 50% 62%/cover no-repeat;
+         border:1px solid var(--line2);cursor:pointer;user-select:none;-webkit-user-select:none;
+         box-shadow:0 0 calc(var(--beat) * 44px) rgba(194,42,63,calc(var(--beat) * .5));transition:border-color .4s}
+  .stage video{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;object-position:50% 62%}
+  .stage .shade{position:absolute;inset:0;z-index:1;pointer-events:none;
+                background:linear-gradient(180deg,rgba(7,9,13,.5) 0%,rgba(7,9,13,0) 15%,rgba(7,9,13,0) 56%,rgba(7,9,13,.62) 76%,rgba(7,9,13,.93) 100%)}
+  .stage.live{border-color:rgba(194,42,63,.75)}
+  .osd{position:absolute;z-index:3;left:14px;top:13px;display:flex;align-items:center;gap:12px;pointer-events:none;
+       font-family:var(--sans);font-size:11px;letter-spacing:.18em;color:rgba(236,232,225,.88);text-shadow:0 1px 2px rgba(0,0,0,.6)}
   .osd .rec{display:flex;align-items:center;gap:7px}
   .osd .rec i{width:8px;height:8px;border-radius:50%;background:var(--red);animation:blink 1.1s steps(1) infinite}
   @keyframes blink{50%{opacity:.15}}
+  .stage.live .osd .rec i{animation:none;opacity:calc(.3 + var(--beat) * .7);transform:scale(calc(1 + var(--beat) * .45))}
   .osd .tc{font-variant-numeric:tabular-nums}
-  .osd.bottom{top:auto;bottom:12px}
-
-  /* ---------- 流れる帯 ---------- */
-  .marquee{margin:18px -20px 0;border-block:1px solid var(--line);overflow:hidden;white-space:nowrap}
-  .marquee .track{display:inline-flex;gap:0;animation:marq 26s linear infinite}
-  .marquee span{font-family:var(--serif);font-style:italic;font-size:19px;padding:9px 0;color:var(--dim)}
-  .marquee span b{font-style:normal;font-weight:400;color:var(--red);margin:0 18px}
-  @keyframes marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-
-  /* ---------- 曲の情報 ---------- */
-  .release{display:grid;gap:4px;padding-top:24px}
-  .eyebrow{display:flex;align-items:center;gap:10px;margin:0;font-family:var(--sans);font-size:11px;letter-spacing:.34em;color:var(--dim);text-transform:uppercase}
+  .snd{position:absolute;z-index:4;right:11px;top:9px;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;cursor:pointer;
+       background:rgba(7,9,13,.6);border:1px solid var(--line2);color:var(--ink);font-family:var(--sans);font-size:12px;font-weight:500;letter-spacing:.1em;
+       -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:background .3s,color .3s,border-color .3s}
+  .snd::after{content:"";position:absolute;inset:-1px;border-radius:inherit;border:1px solid rgba(236,232,225,.8);opacity:0;animation:ping 2.6s var(--ease) 1.6s infinite}
+  @keyframes ping{0%{opacity:.8;transform:scale(1)}70%,100%{opacity:0;transform:scale(1.18)}}
+  .stage.live .snd::after,.stage.done .snd::after{animation:none}
+  .snd:hover,.snd:focus-visible{background:var(--ink);color:var(--dark);border-color:var(--ink)}
+  .stage.live .snd{border-color:rgba(194,42,63,.8)}
+  .snd .bars{display:inline-flex;gap:2px;align-items:flex-end;height:11px}
+  .snd .bars i{width:2px;height:30%;background:currentColor}
+  .stage.live .snd .bars i{height:calc(22% + var(--beat) * 78%)}
+  .stage.live .snd .bars i:nth-child(2){height:calc(40% + var(--beat) * 60%)}
+  .stage.live .snd .bars i:nth-child(3){height:calc(15% + var(--beat) * 55%)}
+  .over{position:absolute;z-index:2;left:18px;right:18px;bottom:17px;pointer-events:none}
+  .eyebrow{display:flex;align-items:center;gap:10px;margin:0;font-family:var(--sans);font-size:11px;letter-spacing:.34em;color:rgba(236,232,225,.78);text-transform:uppercase}
   .eyebrow i{width:7px;height:7px;border-radius:50%;background:var(--red);display:inline-block;animation:blink 1.1s steps(1) infinite}
-  h1{margin:6px 0 0;font-family:var(--serif);font-weight:400;font-size:clamp(40px,12.4vw,56px);line-height:1.02;letter-spacing:.005em;text-transform:uppercase}
+  h1{margin:6px 0 0;font-family:var(--serif);font-weight:400;font-size:clamp(26px,8.7vw,44px);line-height:1.02;letter-spacing:.005em;text-transform:uppercase;white-space:nowrap;
+     text-shadow:0 2px 18px rgba(0,0,0,.45)}
+  .stage.live h1{text-shadow:calc(var(--beat) * -3px) 0 rgba(194,42,63,.8),calc(var(--beat) * 3px) 0 rgba(124,152,166,.8),0 2px 18px rgba(0,0,0,.45)}
   h1 .wd{display:inline-block;white-space:nowrap}
-  h1 .ch{display:inline-block}
+  h1 .ch{display:inline-block;text-align:center}
   .js h1 .ch{opacity:0;transform:translateY(.35em);filter:blur(6px);animation:ch .8s var(--ease) forwards}
   @keyframes ch{to{opacity:1;transform:none;filter:none}}
-  .date{margin:12px 0 0;font-family:var(--sans);font-size:15px;font-weight:500;letter-spacing:.08em}
-  .date span{font-family:var(--jp);font-weight:400;color:var(--dim);margin-left:.6em;letter-spacing:.04em}
-  .count{margin:2px 0 0;font-family:var(--sans);font-size:13px;color:var(--blue);letter-spacing:.1em;font-variant-numeric:tabular-nums;min-height:1.75em}
+  .date{margin:9px 0 0;font-family:var(--sans);font-size:15px;font-weight:500;letter-spacing:.08em}
+  .date span{font-family:var(--jp);font-weight:400;color:rgba(236,232,225,.72);margin-left:.6em;letter-spacing:.04em}
+  .count{margin:1px 0 0;font-family:var(--sans);font-size:13px;color:#a9bfca;letter-spacing:.1em;font-variant-numeric:tabular-nums;min-height:1.75em}
   .count em{font-style:normal;font-family:var(--jp);letter-spacing:.04em}
+  .prog{position:absolute;z-index:3;left:0;right:0;bottom:0;height:2px;background:rgba(236,232,225,.14);opacity:0;transition:opacity .3s;pointer-events:none}
+  .prog i{display:block;height:100%;background:var(--red);transform:scaleX(0);transform-origin:left}
+  .stage.live .prog{opacity:1}
+  .rip{position:absolute;z-index:3;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;border:1px solid rgba(236,232,225,.9);pointer-events:none;
+       animation:rip .8s var(--ease) forwards}
+  @keyframes rip{from{opacity:.9;transform:scale(1)}to{opacity:0;transform:scale(9)}}
 
   /* ---------- ボタン：マウスを乗せると左から塗りつぶし ---------- */
-  .ctas{display:grid;gap:10px;margin-top:18px}
+  .ctas{display:grid;gap:10px;margin-top:14px}
   .btn{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:56px;padding:12px 20px;
        font-family:var(--sans);font-size:15px;font-weight:500;letter-spacing:.08em;border:1px solid var(--line2);cursor:pointer;isolation:isolate;
        transition:color .35s var(--ease),border-color .35s}
@@ -120,30 +136,14 @@
   .btn[aria-disabled="true"]::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(236,232,225,.07) 50%,transparent 70%);
        transform:translateX(-100%);animation:shimmer 3.2s ease-in-out infinite}
   @keyframes shimmer{60%,100%{transform:translateX(100%)}}
-  .note{margin:6px 0 0;font-size:12px;color:var(--faint);text-align:center}
+  .note{margin:4px 0 0;font-size:12px;color:var(--faint);text-align:center}
 
-  .sec{display:flex;align-items:baseline;justify-content:space-between;margin:48px 0 12px;font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:.34em;color:var(--dim);text-transform:uppercase}
+  .sec{display:flex;align-items:baseline;justify-content:space-between;margin:40px 0 12px;font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:.34em;color:var(--dim);text-transform:uppercase}
   .sec small{font-size:10px;letter-spacing:.2em;color:var(--faint)}
-
-  /* ---------- ティザー動画 ---------- */
-  .teaser{position:relative;margin:0 auto;width:min(100%,300px);aspect-ratio:9/16;max-width:100%;border:1px solid var(--line2);border-radius:18px;overflow:hidden;background:var(--bg2);
-          transition:transform .5s var(--ease),border-color .4s,box-shadow .5s}
-  .teaser video{display:block;width:100%;height:100%;object-fit:cover}
-  .teaser:hover{transform:translateY(-4px);border-color:var(--ink);box-shadow:0 18px 50px rgba(0,0,0,.55)}
-  .snd{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;
-       background:rgba(7,9,13,.66);border:1px solid var(--line2);font-family:var(--sans);font-size:12px;letter-spacing:.12em;cursor:pointer;backdrop-filter:blur(6px);
-       transition:background .3s,color .3s,border-color .3s}
-  .snd:hover,.snd:focus-visible{background:var(--ink);color:var(--dark);border-color:var(--ink)}
-  .snd .bars{display:inline-flex;gap:2px;align-items:flex-end;height:11px}
-  .snd .bars i{width:2px;background:currentColor;height:30%}
-  .snd.on .bars i{animation:eq .7s ease-in-out infinite alternate}
-  .snd.on .bars i:nth-child(2){animation-delay:.15s}.snd.on .bars i:nth-child(3){animation-delay:.3s}
-  @keyframes eq{from{height:20%}to{height:100%}}
-  .cap{margin:10px 0 0;text-align:center;font-family:var(--serif);font-style:italic;font-size:15px;color:var(--dim)}
 
   /* ---------- SNS：行ごと反転＋矢印が動く ---------- */
   .links{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
-  .links a{position:relative;display:grid;grid-template-columns:28px 1fr auto 22px;align-items:center;gap:12px;min-height:64px;padding:8px 10px;
+  .links a{position:relative;display:grid;grid-template-columns:28px 1fr auto 22px;align-items:center;gap:12px;min-height:62px;padding:8px 10px;
            border-bottom:1px solid var(--line);isolation:isolate;transition:color .35s var(--ease),padding .35s var(--ease)}
   .links a::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform .45s var(--ease)}
   .links .i{font-family:var(--sans);font-size:11px;color:var(--faint);letter-spacing:.1em;font-variant-numeric:tabular-nums;transition:color .35s}
@@ -155,27 +155,94 @@
   .links a:hover .h,.links a:hover .i,.links a:focus-visible .h,.links a:focus-visible .i{color:#3a3f46}
   .links a:hover .ar,.links a:focus-visible .ar{color:var(--red);transform:translate(3px,-3px)}
 
-  /* ---------- フィルム写真：自動で流れる／乗せると止まって拡大 ---------- */
+  /* ---------- 流れる帯 ---------- */
+  .marquee{margin:40px -20px 0;border-block:1px solid var(--line);overflow:hidden;white-space:nowrap}
+  .marquee .track{display:inline-flex;gap:0;animation:marq 26s linear infinite}
+  .marquee span{font-family:var(--serif);font-style:italic;font-size:19px;padding:9px 0;color:var(--dim)}
+  .marquee span b{font-style:normal;font-weight:400;color:var(--red);margin:0 18px}
+  @keyframes marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* ---------- フィルム写真：自動で流れる／タップで大きく ---------- */
   .film{margin-inline:-20px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
   .film .track{display:flex;gap:10px;width:max-content;animation:marq 48s linear infinite;padding-block:8px}
-  .film:hover .track{animation-play-state:paused}
-  .film figure{margin:0;flex:0 0 auto;width:188px;aspect-ratio:3/4;max-width:100%;position:relative;overflow:hidden;background:var(--bg2);
+  .film:hover .track,.lbopen .film .track{animation-play-state:paused}
+  .film figure{margin:0;flex:0 0 auto;width:188px;aspect-ratio:3/4;max-width:100%;position:relative;overflow:hidden;background:var(--bg2);cursor:zoom-in;
                transition:transform .5s var(--ease),box-shadow .5s}
   .film img{display:block;width:100%;height:100%;object-fit:cover;filter:grayscale(.35) contrast(1.02) brightness(.85);transition:filter .5s,transform .8s var(--ease)}
   .film figure::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 40px rgba(0,0,0,.45);pointer-events:none}
   .film figcaption{position:absolute;left:10px;bottom:8px;z-index:1;font-family:var(--sans);font-size:10px;letter-spacing:.22em;color:rgba(236,232,225,.75)}
-  .film figure:hover{transform:translateY(-6px);box-shadow:0 14px 34px rgba(0,0,0,.6)}
-  .film figure:hover img{filter:none;transform:scale(1.06)}
+  .film figure:hover,.film figure:focus-visible{transform:translateY(-6px);box-shadow:0 14px 34px rgba(0,0,0,.6)}
+  .film figure:hover img,.film figure:focus-visible img{filter:none;transform:scale(1.06)}
 
-  .lyric{margin:50px 0 0;text-align:center;font-family:var(--serif);font-style:italic;font-size:18px;letter-spacing:.02em;color:var(--dim)}
+  /* ---------- 一番下：ジャケット（タップで半分に） ---------- */
+  .cover{margin:0;position:relative;aspect-ratio:1/1;max-width:100%;background:var(--bg2);overflow:hidden;cursor:pointer;outline:1px solid transparent;transition:outline-color .4s}
+  .cover img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;animation:breathe 14s ease-in-out infinite alternate;
+             transition:translate .9s var(--ease),filter .5s}
+  .cover img.a{clip-path:inset(0 50% 0 0)}
+  .cover img.b{clip-path:inset(0 0 0 50%)}
+  @keyframes breathe{from{scale:1}to{scale:1.07}}
+  .cover::after{content:"";position:absolute;inset:0;z-index:1;box-shadow:inset 0 0 90px rgba(0,0,0,.6);pointer-events:none}
+  .cover:hover,.cover:focus-visible{outline-color:var(--line2)}
+  .cover:hover img{filter:brightness(1.1) contrast(1.05)}
+  .cover.split img.a{translate:0 -7%}
+  .cover.split img.b{translate:0 7%}
+  .cover .seam{position:absolute;z-index:2;left:50%;top:0;bottom:0;width:1px;margin-left:-.5px;background:var(--red);transform:scaleY(0);transition:transform .9s var(--ease)}
+  .cover.split .seam{transform:scaleY(1)}
+  .cover .half{position:absolute;z-index:3;font-family:var(--serif);font-style:italic;font-size:18px;color:var(--ink);text-shadow:0 1px 8px rgba(0,0,0,.6);opacity:0;transition:opacity .5s}
+  .cover .half.l{left:16px;top:14px}
+  .cover .half.r{right:16px;bottom:42px}
+  .cover.split .half{opacity:1;transition-delay:.25s}
+  .cover .osd{top:auto;bottom:12px;right:14px;justify-content:space-between}
+  .hint{margin:9px 0 0;text-align:center;font-size:12px;color:var(--faint)}
+
+  .lyric{display:block;margin:46px auto 0;padding:6px 0;border:0;background:none;cursor:pointer;text-align:center;
+         font-family:var(--serif);font-style:italic;font-size:18px;letter-spacing:.02em;color:var(--dim);max-width:100%}
   .lyric .w{display:inline-block;opacity:.18;filter:blur(3px);transition:opacity .7s,filter .7s}
   .lyric.in .w{opacity:1;filter:none}
   footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;line-height:1.85;color:var(--faint)}
   footer .c{font-family:var(--sans);letter-spacing:.08em}
   footer a{text-decoration:underline;text-underline-offset:2px;transition:color .3s}
   footer a:hover{color:var(--ink)}
-  a:focus-visible,.btn:focus-visible,.snd:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+  a:focus-visible,.btn:focus-visible,.snd:focus-visible,.cover:focus-visible,.film figure:focus-visible,.lyric:focus-visible,.lb button:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
 
+  /* ---------- 写真を大きく見る ---------- */
+  .lb{position:fixed;inset:0;z-index:30;display:grid;place-items:center;background:rgba(7,9,13,.93);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+      padding:calc(env(safe-area-inset-top,0px) + 64px) 16px calc(env(safe-area-inset-bottom,0px) + 40px)}
+  .lb figure{margin:0;display:grid;justify-items:center;gap:10px;max-width:min(100%,520px)}
+  .lb img{display:block;max-width:100%;max-height:calc(100vh - 190px);width:auto;height:auto;box-shadow:0 20px 60px rgba(0,0,0,.6);animation:lbIn .5s var(--ease)}
+  @keyframes lbIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+  .lb figcaption{display:flex;align-items:center;gap:22px;font-family:var(--sans);font-size:11px;letter-spacing:.24em;color:var(--dim);font-variant-numeric:tabular-nums}
+  .lb button{display:grid;place-items:center;width:44px;height:44px;border:1px solid var(--line2);border-radius:50%;background:rgba(7,9,13,.55);
+             color:var(--ink);font-family:var(--sans);font-size:16px;letter-spacing:0;cursor:pointer;transition:background .3s,color .3s}
+  .lb button:hover{background:var(--ink);color:var(--dark)}
+  .lb .x{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);right:16px}
+
+  /* ---------- タップの遊び：火花とドーパミン計 ---------- */
+  .spark{position:fixed;left:0;top:0;z-index:25;pointer-events:none;font-family:var(--serif);font-size:20px;line-height:1;will-change:transform,opacity;
+         text-shadow:0 0 10px currentColor}
+  .spark-ring{position:fixed;z-index:25;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;border:1px solid rgba(236,232,225,.85);pointer-events:none;
+              animation:rip .7s var(--ease) forwards}
+  .hud{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);z-index:26;display:flex;align-items:center;gap:10px;padding:8px 14px;
+       border:1px solid var(--line2);border-radius:999px;background:rgba(7,9,13,.74);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+       font-family:var(--sans);font-size:10px;letter-spacing:.26em;color:var(--dim);pointer-events:none;
+       opacity:0;transform:translate(-50%,12px);transition:opacity .4s,transform .4s var(--ease)}
+  .hud.show{opacity:1;transform:translate(-50%,0)}
+  .hud .seg{display:flex;gap:3px}
+  .hud .seg i{width:10px;height:6px;background:rgba(236,232,225,.14);transition:background .2s}
+  .hud .seg i.on{background:var(--red)}
+  .hud .pct{min-width:3.4em;text-align:right;color:var(--ink);letter-spacing:.1em;font-variant-numeric:tabular-nums}
+  .od-layer{position:fixed;inset:0;z-index:27;display:grid;place-items:center;pointer-events:none;opacity:0;
+            background:radial-gradient(ellipse at 50% 50%,rgba(194,42,63,.38),rgba(7,9,13,0) 72%)}
+  .od-layer p{margin:0;padding:0 24px;text-align:center;font-family:var(--serif);font-style:italic;font-size:clamp(30px,9vw,46px);line-height:1.15;
+              text-shadow:-3px 0 rgba(194,42,63,.85),3px 0 rgba(124,152,166,.85)}
+  body.od .od-layer{animation:od 2s var(--ease) forwards}
+  @keyframes od{0%{opacity:0}8%{opacity:1}18%{opacity:.6}26%{opacity:1}80%{opacity:1}100%{opacity:0}}
+  body.od .backdrop{filter:blur(40px) brightness(.6) saturate(1.4) hue-rotate(-18deg)}
+  body.od .grain{opacity:.24}
+  body.od .wrap{animation:shake .45s steps(2) 3}
+  @keyframes shake{0%,100%{transform:translate(0,0)}25%{transform:translate(-2px,1px)}50%{transform:translate(2px,-1px)}75%{transform:translate(-1px,-2px)}}
+
+  @media (max-width:359px){ .osd .tc{display:none} }
   @media (prefers-reduced-motion:reduce){
     *,*::before,*::after{animation:none!important;transition:none!important}
     .js .up,.js .reveal,.js h1 .ch,.lyric .w{opacity:1!important;transform:none!important;filter:none!important}
@@ -188,41 +255,33 @@
 <div class="vign" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 
-<div class="wrap">
+<div class="wrap" id="wrap" onclick="void 0">
   <header class="up" style="--d:.05s">
     <span class="word">Cry DOPE</span>
     <span class="members">Syuri × Sonar</span>
   </header>
 
   <main>
-    <figure class="cover up" style="--d:.15s">
-      <img src="jacket_1200.jpg" width="1200" height="1200" alt="DARK DOPAMINE ジャケット写真">
-      <div class="osd" aria-hidden="true"><span class="rec"><i></i>REC</span><span class="tc" id="tc">00:00:00:00</span></div>
-      <div class="osd bottom" aria-hidden="true"><span>TOKYO</span><span>HALF ▸ ASLEEP</span></div>
-    </figure>
-
-    <div class="marquee up" style="--d:.3s" aria-hidden="true"><div class="track" id="mq"></div></div>
-
-    <section class="release" aria-labelledby="t">
-      <p class="eyebrow up" style="--d:.35s"><i></i>New Single</p>
-      <h1 id="t">Dark Dopamine</h1>
-      <p class="date up" style="--d:.9s"><time datetime="2026-10-02T00:00:00+09:00">2026.10.02 FRI</time><span>配信開始</span></p>
-      <p class="count up" style="--d:1s" id="count" aria-live="off"></p>
+    <section class="hero up" style="--d:.12s" aria-labelledby="t">
+      <div class="stage" id="stage">
+        <video id="tv" src="teaser.mp4" poster="teaser_poster.jpg" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>
+        <div class="shade" aria-hidden="true"></div>
+        <div class="osd" aria-hidden="true"><span class="rec"><i></i>REC</span><span class="tc" id="tc">00:00:00:00</span></div>
+        <button class="snd" id="snd" type="button" aria-pressed="false"><span class="bars" aria-hidden="true"><i></i><i></i><i></i></span><span id="sndl">タップで音を出す</span></button>
+        <div class="over">
+          <p class="eyebrow"><i></i>New Single</p>
+          <h1 id="t">Dark Dopamine</h1>
+          <p class="date"><time datetime="2026-10-02T00:00:00+09:00">2026.10.02 FRI</time><span>配信開始</span></p>
+          <p class="count" id="count" aria-live="off"></p>
+        </div>
+        <span class="prog" aria-hidden="true"><i id="prog"></i></span>
+      </div>
     </section>
 
-    <div class="ctas up" style="--d:1.1s">
+    <div class="ctas up" style="--d:.5s">
       <a class="btn primary" id="ctaListen" data-link="listen" data-pos="cta"><span class="lbl">配信サービスで聴く</span><span class="arw" aria-hidden="true">→</span></a>
       <a class="btn" id="ctaMv" data-link="mv" data-pos="cta"><span class="lbl">MV を観る</span><span class="arw" aria-hidden="true">→</span></a>
       <p class="note" id="ctaNote"></p>
-    </div>
-
-    <h2 class="sec reveal">Teaser <small>5 sec</small></h2>
-    <div class="reveal">
-      <div class="teaser">
-        <video id="tv" src="teaser.mp4" poster="teaser_poster.jpg" autoplay muted loop playsinline preload="auto"></video>
-        <button class="snd" id="snd" type="button" aria-pressed="false"><span class="bars" aria-hidden="true"><i></i><i></i><i></i></span><span id="sndl">音を出す</span></button>
-      </div>
-      <p class="cap">han-bun, han-bun, han-bun-bun</p>
     </div>
 
     <h2 class="sec reveal">Follow <small>04</small></h2>
@@ -233,8 +292,10 @@
       <li><a data-link="x" data-pos="follow" href="https://x.com/cryDOPE"><span class="i">04</span><span class="n">X</span><span class="h">@cryDOPE</span><span class="ar" aria-hidden="true">↗</span></a></li>
     </ul>
 
+    <div class="marquee reveal" aria-hidden="true"><div class="track" id="mq"></div></div>
+
     <h2 class="sec reveal">Film <small>06</small></h2>
-    <div class="film reveal" aria-label="写真">
+    <div class="film reveal" aria-label="写真（タップで大きく表示）">
       <div class="track" id="film">
         <figure><img src="film_01.jpg" width="600" height="800" alt="笑い合う二人"><figcaption>01</figcaption></figure>
         <figure><img src="film_02.jpg" width="600" height="800" alt="夜道を歩く二人"><figcaption>02</figcaption></figure>
@@ -245,7 +306,20 @@
       </div>
     </div>
 
-    <p class="lyric" id="lyric">Half of me is still asleep</p>
+    <h2 class="sec reveal">Jacket <small>Dark Dopamine</small></h2>
+    <div class="reveal">
+      <figure class="cover" id="cover" role="button" tabindex="0" aria-pressed="false" aria-label="ジャケット写真。タップすると半分に分かれます">
+        <img class="a" src="jacket_1200.jpg" width="1200" height="1200" alt="DARK DOPAMINE ジャケット写真">
+        <img class="b" src="jacket_1200.jpg" width="1200" height="1200" alt="" aria-hidden="true">
+        <span class="seam" aria-hidden="true"></span>
+        <span class="half l" aria-hidden="true">han-bun,</span>
+        <span class="half r" aria-hidden="true">han-bun-bun</span>
+        <div class="osd" aria-hidden="true"><span>TOKYO</span><span>HALF ▸ ASLEEP</span></div>
+      </figure>
+      <p class="hint">タップすると、半分に。</p>
+    </div>
+
+    <button class="lyric" id="lyric" type="button" aria-label="歌詞のひとこと（タップで切り替え）">Half of me is still asleep</button>
   </main>
 
   <footer>
@@ -253,6 +327,16 @@
     <div id="gaNote">このサイトはアクセス解析のために Google アナリティクスを使用し、Cookie でデータを収集しています（個人を特定する情報は含みません）。<a href="https://policies.google.com/technologies/partner-sites?hl=ja" rel="noopener">Google によるデータの使用</a></div>
   </footer>
 </div>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="写真" hidden>
+  <figure>
+    <img id="lbImg" src="film_01.jpg" alt="">
+    <figcaption><button class="pv" type="button" aria-label="前の写真">←</button><span id="lbCap">01 / 06</span><button class="nx" type="button" aria-label="次の写真">→</button></figcaption>
+  </figure>
+  <button class="x" type="button" aria-label="閉じる">✕</button>
+</div>
+<div class="hud" id="hud" aria-hidden="true"><span>DOPAMINE</span><span class="seg" id="seg"></span><span class="pct" id="pct">0%</span></div>
+<div class="od-layer" aria-hidden="true"><p>han-bun, han-bun,<br>han-bun-bun</p></div>
 
 <script>
 /* ===== 設定（更新するのはここだけ） ===== */
@@ -266,30 +350,48 @@ var CONFIG = {
 
 (function(){
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function pad(n){ return (n < 10 ? '0' : '') + n; }
+  function ga(name, params){ if (window.gtag) gtag('event', name, params || {}); }
+  function buzz(p){ try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
 
-  // タイトルを1文字ずつ出す
-  var h = document.getElementById('t'), words = h.textContent.split(' '); h.textContent = '';
-  words.forEach(function(word, wi){
-    var w = document.createElement('span'); w.className = 'wd ch'; w.textContent = word;
-    w.style.animationDelay = (0.45 + wi * 0.22) + 's'; h.appendChild(w);
-    if (wi < words.length - 1) h.appendChild(document.createTextNode(' '));
+  // タイトルを1文字ずつに分ける（出し方と、音が鳴った瞬間の文字化けに使う）
+  var h = document.getElementById('t'), title = h.textContent, letters = [];
+  h.textContent = ''; h.setAttribute('aria-label', title);
+  title.split(' ').forEach(function(word, wi, arr){
+    var w = document.createElement('span'); w.className = 'wd'; w.setAttribute('aria-hidden', 'true');
+    word.split('').forEach(function(c, ci){
+      var s = document.createElement('span'); s.className = 'ch'; s.textContent = c; s.setAttribute('data-c', c);
+      s.style.animationDelay = (0.35 + wi * 0.2 + ci * 0.035) + 's'; w.appendChild(s); letters.push(s);
+    });
+    h.appendChild(w); if (wi < arr.length - 1) h.appendChild(document.createTextNode(' '));
   });
+  var GLYPH = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&✦', scrambling = false;
+  function scramble(){
+    if (reduce || scrambling) return; scrambling = true;
+    letters.forEach(function(s){ s.style.width = s.getBoundingClientRect().width + 'px'; });
+    var t0 = performance.now();
+    (function step(now){
+      var busy = false;
+      letters.forEach(function(s, i){
+        if (now - t0 < 240 + i * 36){ busy = true; if (Math.random() < .55) s.textContent = GLYPH[(Math.random() * GLYPH.length) | 0]; }
+        else s.textContent = s.getAttribute('data-c');
+      });
+      if (busy) requestAnimationFrame(step);
+      else { letters.forEach(function(s){ s.style.width = ''; }); scrambling = false; }
+    })(t0);
+  }
 
   // 流れる帯（2周分並べて継ぎ目なく流す）
   var unit = 'Dark Dopamine<b>✦</b>2026.10.02 Fri<b>✦</b>Half of me is still asleep<b>✦</b>半分のあたし<b>✦</b>';
-  var mq = document.getElementById('mq'); var html = '';
+  var mq = document.getElementById('mq'), html = '';
   for (var k = 0; k < 4; k++) html += '<span>' + unit + '</span>';
   mq.innerHTML = html;
 
-  // フィルム写真も2周分
-  var film = document.getElementById('film'); film.innerHTML += film.innerHTML;
-
   // カムコーダー風タイムコード
   var tc = document.getElementById('tc'), t0 = performance.now();
-  function pad(n){ return (n < 10 ? '0' : '') + n; }
   function tcTick(){
     var s = (performance.now() - t0) / 1000;
-    tc.textContent = pad(Math.floor(s/3600)) + ':' + pad(Math.floor(s/60)%60) + ':' + pad(Math.floor(s)%60) + ':' + pad(Math.floor(s*24)%24);
+    tc.textContent = pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s / 60) % 60) + ':' + pad(Math.floor(s) % 60) + ':' + pad(Math.floor(s * 24) % 24);
     if (!reduce) requestAnimationFrame(tcTick);
   }
   tcTick();
@@ -299,7 +401,7 @@ var CONFIG = {
   function tick(){
     var ms = rel - Date.now();
     if (ms <= 0){ count.innerHTML = '<em>配信中</em>'; return; }
-    var d = Math.floor(ms/86400000), hh = Math.floor(ms%86400000/3600000), mm = Math.floor(ms%3600000/60000), ss = Math.floor(ms%60000/1000);
+    var d = Math.floor(ms / 86400000), hh = Math.floor(ms % 86400000 / 3600000), mm = Math.floor(ms % 3600000 / 60000), ss = Math.floor(ms % 60000 / 1000);
     count.innerHTML = '<em>配信まで</em> ' + d + 'd ' + pad(hh) + ':' + pad(mm) + ':' + pad(ss);
   }
   tick(); setInterval(tick, 1000);
@@ -311,37 +413,184 @@ var CONFIG = {
     L.href = CONFIG.listenUrl;
     L.querySelector('.lbl').textContent = released ? '配信サービスで聴く' : 'プレセーブする（配信前に予約）';
   } else {
-    L.setAttribute('aria-disabled','true'); L.removeAttribute('href');
+    L.setAttribute('aria-disabled', 'true'); L.removeAttribute('href');
     L.querySelector('.lbl').textContent = '10.02 配信開始';
     note.textContent = '配信サービスへのリンクは公開と同時にここに出ます';
   }
   if (CONFIG.mvUrl){ M.href = CONFIG.mvUrl; }
-  else { M.setAttribute('aria-disabled','true'); M.removeAttribute('href'); M.querySelector('.lbl').textContent = 'MV 近日公開'; }
+  else { M.setAttribute('aria-disabled', 'true'); M.removeAttribute('href'); M.querySelector('.lbl').textContent = 'MV 近日公開'; }
 
-  // ティザーの音（押したときだけ鳴らす）
-  var v = document.getElementById('tv'), snd = document.getElementById('snd'), sndl = document.getElementById('sndl');
-  snd.addEventListener('click', function(){
-    v.muted = !v.muted; if (!v.muted){ v.currentTime = 0; v.play(); }
-    snd.classList.toggle('on', !v.muted); snd.setAttribute('aria-pressed', String(!v.muted));
-    sndl.textContent = v.muted ? '音を出す' : '音を消す';
-    if (window.gtag && !v.muted) gtag('event', 'teaser_unmute');
+  // ティザー：タップで音。音ありは1回だけ流して、終わったら無音のループに戻る
+  var stage = document.getElementById('stage'), v = document.getElementById('tv'),
+      snd = document.getElementById('snd'), sndl = document.getElementById('sndl'), prog = document.getElementById('prog');
+  var BEAT = 0.6506, PHASE = 0.075, state = 'idle', raf = 0;
+  function setState(s){
+    state = s;
+    stage.classList.toggle('live', s === 'live'); stage.classList.toggle('done', s === 'done');
+    snd.setAttribute('aria-pressed', String(s === 'live'));
+    sndl.textContent = s === 'live' ? '音を消す' : (s === 'done' ? 'もう一度聴く' : 'タップで音を出す');
+  }
+  function frame(){
+    if (state !== 'live') return;
+    var t = v.currentTime, d = v.duration || 5;
+    prog.style.transform = 'scaleX(' + Math.min(1, t / d).toFixed(4) + ')';
+    var ph = (((t - PHASE) % BEAT) + BEAT) % BEAT / BEAT;
+    stage.style.setProperty('--beat', reduce ? 0 : Math.exp(-ph * 5).toFixed(3));
+    raf = requestAnimationFrame(frame);
+  }
+  function soundOff(next){
+    cancelAnimationFrame(raf);
+    v.muted = true; v.loop = true;
+    stage.style.setProperty('--beat', 0); prog.style.transform = 'scaleX(0)';
+    setState(next || 'idle');
+    if (v.paused){ var p = v.play(); if (p && p.catch) p.catch(function(){}); }
+  }
+  function soundOn(){
+    v.loop = false; v.muted = false;
+    try { v.currentTime = 0; } catch (e) {}
+    setState('live'); scramble(); buzz(12);
+    var p = v.play(); if (p && p.catch) p.catch(function(){ soundOff('idle'); });
+    cancelAnimationFrame(raf); raf = requestAnimationFrame(frame);
+    ga('teaser_unmute');
+  }
+  function toggle(){ if (state === 'live') soundOff('idle'); else soundOn(); }
+  v.addEventListener('ended', function(){
+    if (state !== 'live') return;
+    ga('teaser_complete');
+    try { v.currentTime = 0; } catch (e) {}
+    soundOff('done');
+  });
+  document.addEventListener('visibilitychange', function(){ if (document.hidden && state === 'live') soundOff('idle'); });
+  snd.addEventListener('click', function(e){ e.stopPropagation(); toggle(); });
+  stage.addEventListener('click', function(e){
+    if (!reduce){
+      var r = stage.getBoundingClientRect(), s = document.createElement('span');
+      s.className = 'rip'; s.style.left = (e.clientX - r.left) + 'px'; s.style.top = (e.clientY - r.top) + 'px';
+      stage.appendChild(s); setTimeout(function(){ s.remove(); }, 900);
+    }
+    toggle();
   });
 
-  // 歌詞を単語ごとに
-  var ly = document.getElementById('lyric'), words = ly.textContent.split(' '); ly.textContent = '';
-  words.forEach(function(w, i){ var s = document.createElement('span'); s.className = 'w'; s.textContent = w; s.style.transitionDelay = (i*0.12) + 's'; ly.appendChild(s); if (i < words.length-1) ly.appendChild(document.createTextNode(' ')); });
+  // フィルム写真：2周分並べて流す／タップで大きく
+  var film = document.getElementById('film'); film.innerHTML += film.innerHTML;
+  var figs = film.querySelectorAll('figure'), N = figs.length / 2;
+  var lb = document.getElementById('lb'), lbImg = document.getElementById('lbImg'), lbCap = document.getElementById('lbCap'), cur = 0, lastFocus = null;
+  function show(i){
+    cur = (i + N) % N; var im = figs[cur].querySelector('img');
+    lbImg.src = im.getAttribute('src'); lbImg.alt = im.alt; lbCap.textContent = pad(cur + 1) + ' / ' + pad(N);
+    lbImg.style.animation = 'none'; void lbImg.offsetWidth; lbImg.style.animation = '';
+  }
+  function openLb(i){
+    lastFocus = document.activeElement; show(i); lb.hidden = false; document.body.classList.add('lbopen');
+    lb.querySelector('.x').focus({ preventScroll: true }); buzz(8); ga('film_open', { photo: cur + 1 });
+  }
+  function closeLb(){
+    lb.hidden = true; document.body.classList.remove('lbopen');
+    if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+  }
+  Array.prototype.forEach.call(figs, function(f, i){
+    if (i < N){ f.tabIndex = 0; f.setAttribute('role', 'button'); f.setAttribute('aria-label', (f.querySelector('img').alt) + '（大きく表示）'); }
+    else { f.setAttribute('aria-hidden', 'true'); }
+    f.addEventListener('click', function(){ openLb(i % N); });
+    f.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openLb(i % N); } });
+  });
+  lb.addEventListener('click', function(e){
+    if (e.target.closest('.pv')) show(cur - 1);
+    else if (e.target.closest('.nx') || e.target === lbImg) show(cur + 1);
+    else closeLb();
+  });
+  document.addEventListener('keydown', function(e){
+    if (lb.hidden) return;
+    if (e.key === 'Escape') closeLb(); else if (e.key === 'ArrowLeft') show(cur - 1); else if (e.key === 'ArrowRight') show(cur + 1);
+  });
+  var sx = null;
+  lb.addEventListener('touchstart', function(e){ sx = e.touches[0].clientX; }, { passive: true });
+  lb.addEventListener('touchend', function(e){
+    if (sx === null) return; var dx = e.changedTouches[0].clientX - sx; sx = null;
+    if (Math.abs(dx) > 44){ e.preventDefault(); show(cur + (dx < 0 ? 1 : -1)); }
+  });
+
+  // ジャケット：タップで半分に
+  var cover = document.getElementById('cover');
+  function split(){
+    var on = !cover.classList.contains('split');
+    cover.classList.toggle('split', on); cover.setAttribute('aria-pressed', String(on));
+    buzz(on ? [8, 30, 8] : 8); if (on) ga('jacket_split');
+  }
+  cover.addEventListener('click', split);
+  cover.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); split(); } });
+
+  // ひとこと：タップで切り替え
+  var ly = document.getElementById('lyric'), PH = ['Half of me is still asleep', '半分のあたし', 'han-bun, han-bun, han-bun-bun'], li = 0;
+  function setLyric(text, animate){
+    var jp = /[぀-ヿ一-鿿]/.test(text), parts = jp ? text.split('') : text.split(' ');
+    ly.classList.remove('in'); ly.textContent = '';
+    parts.forEach(function(w, i){
+      var s = document.createElement('span'); s.className = 'w'; s.textContent = w; s.style.transitionDelay = (i * (jp ? 0.07 : 0.12)) + 's';
+      ly.appendChild(s); if (!jp && i < parts.length - 1) ly.appendChild(document.createTextNode(' '));
+    });
+    if (animate) requestAnimationFrame(function(){ requestAnimationFrame(function(){ ly.classList.add('in'); }); });
+  }
+  setLyric(PH[0], false);
+  ly.addEventListener('click', function(){ li = (li + 1) % PH.length; setLyric(PH[li], true); buzz(6); });
 
   // スクロールで出す
   var els = document.querySelectorAll('.reveal, #lyric');
   if ('IntersectionObserver' in window && !reduce){
-    var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); }, {threshold: .15});
+    var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); }, { threshold: .15 });
     els.forEach(function(el){ io.observe(el); });
   } else { els.forEach(function(el){ el.classList.add('in'); }); }
 
+  // 余白をタップ：火花が散って、ドーパミン計がたまる（10回で満タン）
+  var hud = document.getElementById('hud'), seg = document.getElementById('seg'), pct = document.getElementById('pct');
+  for (var q = 0; q < 10; q++) seg.appendChild(document.createElement('i'));
+  var segs = seg.children, level = 0, hideT = 0, odT = 0, lastTap = 0, overdosing = false;
+  var COLORS = ['#c22a3f', '#ece8e1', '#7c98a6'];
+  function meter(){
+    for (var q = 0; q < 10; q++) segs[q].className = q < level ? 'on' : '';
+    pct.textContent = (level * 10) + '%';
+    hud.classList.add('show'); clearTimeout(hideT);
+    hideT = setTimeout(function(){ hud.classList.remove('show'); }, 2200);
+  }
+  function sparks(x, y){
+    if (reduce || !document.body.animate) return;
+    var ring = document.createElement('span'); ring.className = 'spark-ring'; ring.style.left = x + 'px'; ring.style.top = y + 'px';
+    document.body.appendChild(ring); setTimeout(function(){ ring.remove(); }, 800);
+    for (var k = 0; k < 8; k++){
+      var s = document.createElement('span'); s.className = 'spark'; s.textContent = '✦'; s.style.color = COLORS[k % 3];
+      document.body.appendChild(s);
+      var a = (k / 8) * Math.PI * 2 + Math.random() * .6, d = 34 + Math.random() * 44, sc = .8 + Math.random() * .8, rot = Math.random() * 240 - 120;
+      var mx = x + Math.cos(a) * d * .62, my = y + Math.sin(a) * d * .62, ex = x + Math.cos(a) * d, ey = y + Math.sin(a) * d + 12;
+      var an = s.animate([
+        { transform: 'translate(' + x + 'px,' + y + 'px) translate(-50%,-50%) scale(' + (sc * .3) + ')', opacity: 1 },
+        { transform: 'translate(' + mx + 'px,' + my + 'px) translate(-50%,-50%) scale(' + sc + ') rotate(' + (rot * .5) + 'deg)', opacity: 1, offset: .35 },
+        { transform: 'translate(' + ex + 'px,' + ey + 'px) translate(-50%,-50%) scale(.2) rotate(' + rot + 'deg)', opacity: 0 }
+      ], { duration: 850 + Math.random() * 400, easing: 'cubic-bezier(.2,.6,.3,1)' });
+      an.onfinish = (function(el){ return function(){ el.remove(); }; })(s);
+    }
+  }
+  function overdose(){
+    overdosing = true;
+    document.body.classList.remove('od'); void document.body.offsetWidth; document.body.classList.add('od');
+    buzz([20, 40, 20, 40, 60]); ga('dopamine_full');
+    clearTimeout(odT);
+    odT = setTimeout(function(){ document.body.classList.remove('od'); overdosing = false; level = 0; meter(); }, 2000);
+  }
+  var SKIP = 'a,button,.stage,.film,.cover,.lyric';
+  document.getElementById('wrap').addEventListener('click', function(e){
+    // 押した瞬間の経路で判定（ひとことは押すと中身が入れ替わるため）
+    var path = e.composedPath ? e.composedPath() : [e.target];
+    for (var i = 0; i < path.length; i++){ if (path[i].matches && path[i].matches(SKIP)) return; }
+    var now = performance.now(); if (now - lastTap < 80 || overdosing) return; lastTap = now;
+    sparks(e.clientX, e.clientY); buzz(5);
+    level = Math.min(10, level + 1); meter();
+    if (level === 10) overdose();
+  });
+
   // GA4
   if (CONFIG.gaId){
-    var s = document.createElement('script'); s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=' + CONFIG.gaId;
-    document.head.appendChild(s);
+    var sc = document.createElement('script'); sc.async = true; sc.src = 'https://www.googletagmanager.com/gtag/js?id=' + CONFIG.gaId;
+    document.head.appendChild(sc);
     window.dataLayer = window.dataLayer || []; window.gtag = function(){ dataLayer.push(arguments); };
     gtag('js', new Date()); gtag('config', CONFIG.gaId);
   } else { document.getElementById('gaNote').hidden = true; }
