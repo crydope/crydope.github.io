@@ -342,7 +342,7 @@
 /* ===== 設定（更新するのはここだけ） ===== */
 var CONFIG = {
   releaseAt: "2026-10-02T00:00:00+09:00",
-  listenUrl: "",   /* TuneCore の LinkCore URL（審査承認後に入れる） */
+  listenUrl: "https://linkco.re/d72DCCvF",   /* TuneCore の LinkCore（2026-10-01 設定） */
   mvUrl: "",       /* MV の YouTube URL（公開後に入れる） */
   gaId: "G-Q0E1QGG5ZD"
 };
@@ -406,12 +406,17 @@ var CONFIG = {
   }
   tick(); setInterval(tick, 1000);
 
-  // ボタンの状態
-  var released = Date.now() >= rel;
+  // ボタンの状態（配信前は LinkCore の予告ページへ、0:00 を過ぎたら開いたままでも表記が切り替わる）
   var L = document.getElementById('ctaListen'), M = document.getElementById('ctaMv'), note = document.getElementById('ctaNote');
   if (CONFIG.listenUrl){
     L.href = CONFIG.listenUrl;
-    L.querySelector('.lbl').textContent = released ? '配信サービスで聴く' : 'プレセーブする（配信前に予約）';
+    var setListen = function(){
+      var released = Date.now() >= rel;
+      L.querySelector('.lbl').textContent = released ? '配信サービスで聴く' : '配信ページを見る';
+      note.textContent = released ? '' : '10.02 0:00 に各サービスのボタンが表示されます';
+      return released;
+    };
+    if (!setListen()){ var lw = setInterval(function(){ if (setListen()) clearInterval(lw); }, 1000); }
   } else {
     L.setAttribute('aria-disabled', 'true'); L.removeAttribute('href');
     L.querySelector('.lbl').textContent = '10.02 配信開始';
